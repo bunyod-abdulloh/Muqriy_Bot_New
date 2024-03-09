@@ -90,42 +90,34 @@ class Database:
     async def create_table_media(self):
         sql = """
         CREATE TABLE IF NOT EXISTS Media (
-        id SERIAL PRIMARY KEY,      
-        audio VARCHAR(60) NULL,
-        document VARCHAR(60) NULL,
-        photo VARCHAR(60) NULL,
-        video VARCHAR(60) NULL,
-        voice VARCHAR(60) NULL,
-        url varchar(255) NULL,
+        id SERIAL PRIMARY KEY,
+        category VARCHAR(100) NULL,
+        subcategory VARCHAR(100) NULL,      
+        type TEXT NULL,
+        file_id VARCHAR(100) NULL,
+        caption VARCHAR(4000) NULL,
         media_group BOOLEAN DEFAULT FALSE,          
         button VARCHAR(60) NULL,
-        callback VARCHAR(60) NULL,
-        caption VARCHAR(4000) NULL
+        callback VARCHAR(60) NULL        
         );
         """
         await self.execute(sql, execute=True)
 
-    async def add_audio(self, file_id, caption):
-        sql = "INSERT INTO Media (audio, caption) VALUES($1, $2) returning *"
-        return await self.execute(sql, file_id, caption, fetchrow=True)
+    async def add_category(self, category):
+        sql = "INSERT INTO Media (category) VALUES($1) returning *"
+        return await self.execute(sql, category, fetchrow=True)
 
-    async def add_document(self, file_id, caption):
-        sql = "INSERT INTO Media (document, caption) VALUES($1, $2) returning *"
-        return await self.execute(sql, file_id, caption, fetchrow=True)
+    async def add_subcategory(self, subcategory, category):
+        sql = "UPDATE Media SET subcategory=$1 WHERE category=$2"
+        return await self.execute(sql, category, subcategory, execute=True)
 
-    async def add_photo(self, file_id, caption):
-        sql = "INSERT INTO Media (photo, caption) VALUES($1, $2) returning *"
-        return await self.execute(sql, file_id, caption, fetchrow=True)
+    async def add_media(self, type_, file_id, caption, category, subcategory):
+        sql = "UPDATE Media SET type=$1, file_id=$2, caption=$3 WHERE category=$4 AND subcategory=$5"
+        return await self.execute(sql, type_, file_id, caption, category, subcategory, execute=True)
 
-    async def add_video(self, file_id, caption):
-        sql = "INSERT INTO Media (video, caption) VALUES($1, $2) returning *"
-        return await self.execute(sql, file_id, caption, fetchrow=True)
+    async def select_main_buttons(self):
+        sql = "SELECT DISTINCT category FROM Media ORDER BY category"
+        return await self.execute(sql, fetch=True)
 
-    async def add_voice(self, file_id, caption):
-        sql = "INSERT INTO Media (voice, caption) VALUES($1, $2) returning *"
-        return await self.execute(sql, file_id, caption, fetchrow=True)
-
-    async def add_url(self, url, caption):
-        sql = "INSERT INTO Media (url, caption) VALUES($1, $2) returning *"
-        return await self.execute(sql, url, caption, fetchrow=True)
-
+    async def drop_table_media(self):
+        await self.execute("DROP TABLE Media", execute=True)
