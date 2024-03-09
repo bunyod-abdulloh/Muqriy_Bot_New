@@ -1,8 +1,10 @@
 import logging
 import asyncio
-from aiogram import Router, types
+from aiogram import Router, types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+
+from keyboards.reply.admin import admin_main_buttons
 from loader import db, bot
 from keyboards.inline.buttons import are_you_sure_markup
 from states.test import AdminState
@@ -13,7 +15,14 @@ from utils.pgtoexcel import export_to_excel
 router = Router()
 
 
-@router.message(Command('allusers'), IsBotAdminFilter(ADMINS))
+@router.message(Command("admin"), IsBotAdminFilter(ADMINS))
+async def admin_menu(message: types.Message, state: FSMContext):
+    await message.answer(
+        text=message.text, reply_markup=admin_main_buttons
+    )
+
+
+@router.message(F.text == 'All users', IsBotAdminFilter(ADMINS))
 async def get_all_users(message: types.Message):
     users = await db.select_all_users()
 
@@ -23,7 +32,7 @@ async def get_all_users(message: types.Message):
     await message.answer_document(types.input_file.FSInputFile(file_path))
 
 
-@router.message(Command('reklama'), IsBotAdminFilter(ADMINS))
+@router.message(F.text == 'Reklama', IsBotAdminFilter(ADMINS))
 async def ask_ad_content(message: types.Message, state: FSMContext):
     await message.answer("Reklama uchun post yuboring")
     await state.set_state(AdminState.ask_ad_content)
@@ -45,7 +54,7 @@ async def send_ad_to_users(message: types.Message, state: FSMContext):
     await state.clear()
 
 
-@router.message(Command('cleandb'), IsBotAdminFilter(ADMINS))
+@router.message(F.text == 'Clean DB', IsBotAdminFilter(ADMINS))
 async def ask_are_you_sure(message: types.Message, state: FSMContext):
     msg = await message.reply("Haqiqatdan ham bazani tozalab yubormoqchimisiz?", reply_markup=are_you_sure_markup)
     await state.update_data(msg_id=msg.message_id)
@@ -56,6 +65,7 @@ async def ask_are_you_sure(message: types.Message, state: FSMContext):
 async def clean_db(call: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     msg_id = data.get('msg_id')
+    text = str()
     if call.data == 'yes':
         await db.delete_users()
         text = "Baza tozalandi!"
