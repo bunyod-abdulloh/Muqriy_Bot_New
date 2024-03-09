@@ -12,9 +12,10 @@ start_router = Router()
 async def do_start(message: types.Message):
     telegram_id = message.from_user.id
     username = message.from_user.username
-    buttons_text = ['button 1', 'button 2', 'button 3', 'button 4', 'button 5', 'button 6']
+    buttons_text = ["📖 Qur'oni Karim", "☀️ Siyrat", "🌕 Ramazon", "📚 Ilmiy suhbatlar",
+                    "☪️ Tahorat, namoz va zikrlar", "❓ Savol yuborish"]
     for category in buttons_text:
-        await db.add_category(category=category)
+        await db.add_category_one(category_one=category)
     buttons = await db.select_main_buttons()
     try:
         await db.add_user(telegram_id=telegram_id, username=username)

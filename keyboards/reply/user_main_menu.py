@@ -6,5 +6,5 @@ def user_main_menu_buttons(buttons_text: list):
     builder = ReplyKeyboardBuilder()
     for text in buttons_text:
         builder.add(KeyboardButton(text=text[0]))
-    builder.adjust(2)
+    builder.adjust(2, 2, 1, 1)
     return builder.as_markup(resize_keyboard=True)

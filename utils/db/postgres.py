@@ -91,32 +91,42 @@ class Database:
         sql = """
         CREATE TABLE IF NOT EXISTS Media (
         id SERIAL PRIMARY KEY,
-        category VARCHAR(100) NULL,
-        subcategory VARCHAR(100) NULL,      
+        category_one VARCHAR(100) NULL,
+        subcategory_one VARCHAR(100) NULL,
+        category_two VARCHAR(100) NULL,
+        subcategory_two VARCHAR(100) NULL,      
         type TEXT NULL,
         file_id VARCHAR(100) NULL,
         caption VARCHAR(4000) NULL,
-        media_group BOOLEAN DEFAULT FALSE,          
-        button VARCHAR(60) NULL,
+        description VARCHAR(4000) NULL,
+        media_group BOOLEAN DEFAULT FALSE,        
         callback VARCHAR(60) NULL        
         );
         """
         await self.execute(sql, execute=True)
 
-    async def add_category(self, category):
-        sql = "INSERT INTO Media (category) VALUES($1) returning *"
-        return await self.execute(sql, category, fetchrow=True)
+    async def add_category_one(self, category_one):
+        sql = "INSERT INTO Media (category_one) VALUES($1) returning *"
+        return await self.execute(sql, category_one, fetchrow=True)
 
-    async def add_subcategory(self, subcategory, category):
-        sql = "UPDATE Media SET subcategory=$1 WHERE category=$2"
-        return await self.execute(sql, category, subcategory, execute=True)
+    async def add_subcategory_one(self, subcategory_one, category_one):
+        sql = "UPDATE Media SET subcategory_one=$1 WHERE category_one=$2"
+        return await self.execute(sql, subcategory_one, category_one, execute=True)
+
+    async def add_category_two(self, category_two, category_one, subcategory_one):
+        sql = "UPDATE Media SET category_two=$1 WHERE category_one=$2 AND subcategory_one=$3"
+        return await self.execute(sql, category_two, category_one, subcategory_one, execute=True)
+
+    async def add_subcategory_two(self, subcategory_two, category_two):
+        sql = "UPDATE Media SET subcategory_two=$1 WHERE category_two=$2"
+        return await self.execute(sql, subcategory_two, category_two, execute=True)
 
     async def add_media(self, type_, file_id, caption, category, subcategory):
         sql = "UPDATE Media SET type=$1, file_id=$2, caption=$3 WHERE category=$4 AND subcategory=$5"
         return await self.execute(sql, type_, file_id, caption, category, subcategory, execute=True)
 
     async def select_main_buttons(self):
-        sql = "SELECT DISTINCT category FROM Media ORDER BY category"
+        sql = "SELECT category_one FROM Media"
         return await self.execute(sql, fetch=True)
 
     async def drop_table_media(self):
