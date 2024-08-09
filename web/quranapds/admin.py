@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import QuranAudioPhotoDoc
+from .models import QuranAPD
 
 
 class QuranAdmin(admin.ModelAdmin):
@@ -9,4 +9,4 @@ class QuranAdmin(admin.ModelAdmin):
     list_display_links = ('sura_name',)
 
 
-admin.site.register(QuranAudioPhotoDoc, QuranAdmin)
+admin.site.register(QuranAPD, QuranAdmin)
